@@ -33,9 +33,16 @@ splash, trim, scale to the circle, center on the canvas.
 errors (e.g. a gradient background) and a warning when contrast against the white
 splash is below 1.5:1.
 
-**Preview:** *Splash on white* shows the result as the splash will show it
-(white screen, icon clipped to the circle; *Show circle* draws the mask outline).
-*Transparent output* shows the raw PNG on a checkerboard with the circle.
+**Preview** (display only; the download is always the transparent 1152 PNG):
+- *Phone mockup* (default): a generic phone (412×915 dp screen) showing the icon as
+  Android 12+ draws it: 288×288 dp, centered on the screen, masked to the 192 dp
+  circle.
+- *Splash*: the same icon mask on a full-screen background.
+- *Transparent output*: the raw PNG on a checkerboard (circle shown by default).
+- *Background* (Phone mockup and Splash) picks the splash color for the preview
+  only. *Show circle* draws the 192 dp mask. *Show bounding box* draws the logo's
+  extent as the algorithm measures it (alpha ≥ 8, trimmed and scaled exactly as
+  fitted). These view settings persist when you open another file.
 
 ## Development
 

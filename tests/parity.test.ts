@@ -109,6 +109,13 @@ for (const tier of TIERS) {
           expect(s.over / s.total).toBeLessThanOrEqual(FINAL_MAX_SHARE);
           expect(bbDelta).toBeLessThanOrEqual(RADIUS_TOL);
           expect(Math.abs(radDelta)).toBeLessThanOrEqual(RADIUS_TOL);
+
+          // The preview's bounding box (trimmed extent mapped by the fit) agrees with
+          // the alpha extent measured on the output.
+          const { offset, newSize } = r.report.fit;
+          const fitBox = [offset[0], offset[1], offset[0] + newSize[0], offset[1] + newSize[1]];
+          row.note += `fitBox Δ ${Math.max(...fitBox.map((v, i) => Math.abs(v - bbTs[i])))} `;
+          for (let i = 0; i < 4; i++) expect(Math.abs(fitBox[i] - bbTs[i])).toBeLessThanOrEqual(1);
         });
       }
     }
