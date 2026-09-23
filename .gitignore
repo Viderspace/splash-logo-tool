@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.venv/
+test-report/
+.DS_Store
+*.tsbuildinfo
+dist-parity/
+__pycache__/
+private_fixtures/
+goldens_private/
+.claude/launch.json

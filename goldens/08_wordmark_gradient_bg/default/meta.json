@@ -1,0 +1,32 @@
+{
+  "options": {
+    "keep_holes": false,
+    "invert": false,
+    "keep_bg": false,
+    "tol_low": 6.0,
+    "tol_high": 24.0
+  },
+  "skip": null,
+  "removal": {
+    "band": 7,
+    "bg_rgb": [
+      208.0,
+      215.0,
+      215.0
+    ],
+    "bg_lab": [
+      85.46187299920983,
+      -2.364490131656516,
+      -0.8247218118587751
+    ],
+    "match": 1.0
+  },
+  "error": {
+    "kind": "sideMismatch",
+    "message": "Border is not a uniform background (top and bottom edges differ by Delta E 36.8 > 24.0). Gradient/graphic background or logo covering most of an edge."
+  },
+  "contrast": null,
+  "low_contrast": null,
+  "fit": null,
+  "log": []
+}

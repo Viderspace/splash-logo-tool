@@ -1,0 +1,44 @@
+{
+  "options": {
+    "keep_holes": false,
+    "invert": false,
+    "keep_bg": false,
+    "tol_low": 6.0,
+    "tol_high": 24.0
+  },
+  "skip": null,
+  "removal": {
+    "band": 6,
+    "bg_rgb": [
+      240.0,
+      228.0,
+      204.0
+    ],
+    "bg_lab": [
+      90.94976790753016,
+      0.1771743357701916,
+      13.179426495298818
+    ],
+    "match": 1.0
+  },
+  "error": null,
+  "contrast": 4.5395353038930795,
+  "low_contrast": false,
+  "fit": {
+    "crop": [
+      100,
+      154,
+      701,
+      442
+    ],
+    "radius": 308.4281655340772,
+    "scale": 1.2450224814425164,
+    "new_size": [
+      748,
+      359
+    ]
+  },
+  "log": [
+    "Background removed."
+  ]
+}

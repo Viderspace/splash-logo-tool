@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser parity check</title>
+    <style>
+      body { font: 14px system-ui, sans-serif; margin: 16px; background: #fff; color: #111; }
+      table { border-collapse: collapse; margin-bottom: 24px; }
+      td, th { border: 1px solid #ccc; padding: 4px 8px; text-align: left; vertical-align: top; }
+      .pass { background: #dff3df; color: #145214; }
+      .fail { background: #fbdcdc; color: #7a1010; }
+      #summary { font-size: 1.4rem; font-weight: 700; padding: 8px 12px; border-radius: 6px; display: inline-block; }
+    </style>
+  </head>
+  <body>
+    <h1>Browser parity check vs Python reference</h1>
+    <p id="summary">Running…</p>
+    <p id="status"></p>
+    <h2>Color management (ICC profile must be ignored, like Pillow)</h2>
+    <table id="icc"></table>
+    <h2>Pipeline per input / variant</h2>
+    <table id="pipeline"></table>
+    <script type="module" src="./parity.ts"></script>
+  </body>
+</html>

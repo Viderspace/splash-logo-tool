@@ -1,0 +1,102 @@
+:root {
+  --bg: #f6f6f4;
+  --panel: #ffffff;
+  --text: #1d1d1f;
+  --muted: #6b6b70;
+  --line: #deded9;
+  --accent: #2f5bd3;
+  --accent-text: #ffffff;
+  --warn-bg: #fff4d6;
+  --warn-text: #6b4a00;
+  --err-bg: #fde7e7;
+  --err-text: #8a1c1c;
+  --note-bg: #e9f0ff;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.45;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+
+.app { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+header h1 { margin: 0 0 4px; font-size: 1.5rem; }
+header p { margin: 0 0 20px; max-width: 60ch; }
+.muted { color: var(--muted); }
+
+main { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 24px; align-items: start; }
+@media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+
+.left, .right { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.dropzone {
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 28px 16px;
+  display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center;
+  cursor: pointer;
+}
+.dropzone.compact { padding: 12px 16px; }
+.dropzone.over, .dropzone:hover, .dropzone:focus-visible { border-color: var(--accent); outline: none; }
+.dropzone .muted { font-size: 0.85rem; }
+
+.controls {
+  border: 1px solid var(--line); border-radius: 12px; background: var(--panel);
+  padding: 12px 16px 16px; margin: 0; display: flex; flex-direction: column; gap: 14px;
+}
+.controls legend { padding: 0 4px; font-weight: 600; }
+.controls:disabled { opacity: 0.55; }
+
+.slider { display: flex; flex-direction: column; gap: 4px; }
+.slider .row { display: flex; justify-content: space-between; }
+.slider output { font-variant-numeric: tabular-nums; color: var(--muted); }
+.slider input { width: 100%; accent-color: var(--accent); }
+.disabled { opacity: 0.5; }
+
+.toggle { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.toggle input { margin-top: 3px; accent-color: var(--accent); }
+.toggle small { display: block; color: var(--muted); font-size: 0.8rem; }
+.toggle.inline { align-items: center; }
+
+button { font: inherit; border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--text); }
+button:disabled { cursor: not-allowed; opacity: 0.5; }
+button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; align-self: flex-start; }
+button.secondary { align-self: flex-start; }
+
+.status { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.status li { padding: 6px 10px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); overflow-wrap: anywhere; }
+.status li.muted { background: none; border: none; padding: 0 2px; font-size: 0.85rem; }
+.status li.warning { background: var(--warn-bg); color: var(--warn-text); border-color: transparent; }
+.status li.error { background: var(--err-bg); color: var(--err-text); border-color: transparent; }
+.status li.note { background: var(--note-bg); border-color: transparent; }
+.error { color: var(--err-text); }
+.swatch { display: inline-block; width: 1em; height: 1em; border: 1px solid rgba(0, 0, 0, 0.3); border-radius: 3px; vertical-align: -0.15em; }
+
+.preview-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.segmented button { border: none; border-radius: 0; padding: 6px 12px; }
+.segmented button.on { background: var(--accent); color: var(--accent-text); }
+
+.preview {
+  width: 100%; max-width: 576px; aspect-ratio: 1; height: auto;
+  border: 1px solid var(--line); border-radius: 12px; display: block;
+  transition: opacity 0.15s;
+}
+.preview.checker {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #d9d9d9 25%, transparent 25%),
+    linear-gradient(-45deg, #d9d9d9 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d9d9d9 75%),
+    linear-gradient(-45deg, transparent 75%, #d9d9d9 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+}
+.preview.dimmed { opacity: 0.85; }
+
+.placeholder {
+  border: 1px dashed var(--line); border-radius: 12px; aspect-ratio: 1; max-width: 576px;
+  display: grid; place-items: center;
+}

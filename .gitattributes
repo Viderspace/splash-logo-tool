@@ -1,0 +1,6 @@
+# Keep bytes stable so goldens/manifest.json hashes match on every platform.
+* -text
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary

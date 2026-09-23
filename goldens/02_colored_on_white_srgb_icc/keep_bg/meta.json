@@ -1,0 +1,32 @@
+{
+  "options": {
+    "keep_holes": false,
+    "invert": false,
+    "keep_bg": true,
+    "tol_low": 6.0,
+    "tol_high": 24.0
+  },
+  "skip": "keepBg",
+  "removal": null,
+  "error": null,
+  "contrast": 1.210324929564386,
+  "low_contrast": true,
+  "fit": {
+    "crop": [
+      0,
+      0,
+      800,
+      600
+    ],
+    "radius": 500.00711679520606,
+    "scale": 0.7679890687581543,
+    "new_size": [
+      614,
+      461
+    ]
+  },
+  "log": [
+    "Background removal skipped (--keep-bg).",
+    "WARNING: low contrast against a white splash (1.21:1, minimum 1.5:1). Consider running with --invert."
+  ]
+}
