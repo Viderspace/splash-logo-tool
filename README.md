@@ -14,7 +14,7 @@ by a Content Security Policy), and images never leave your machine.
 1. Open the tool's GitHub Pages link.
 2. Drop a logo (PNG, JPEG or WebP) on the page, or click to choose a file.
 3. Check the status line and the preview, adjust if needed, and click
-   **Download** to save `<original name>_1152.png`.
+   **Download** to save `android_splash.png` (the name is the same for every input).
 
 What the tool does, in order: remove the background (skipped if the image is
 already transparent), optionally invert lightness, check contrast against a white

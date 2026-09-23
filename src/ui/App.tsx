@@ -5,7 +5,7 @@ import { Controls } from './Controls';
 import { DropZone } from './DropZone';
 import { Preview, type PreviewMode } from './Preview';
 import { StatusLine } from './StatusLine';
-import { outputName, useProcessor, type ChangeMode } from './useProcessor';
+import { OUTPUT_NAME, useProcessor, type ChangeMode } from './useProcessor';
 
 const MODES: { id: PreviewMode; label: string }[] = [
   { id: 'phone', label: 'Phone mockup' },
@@ -57,8 +57,7 @@ export function App() {
 
       <main>
         <section className="left">
-          <DropZone compact={!!file} onFile={openFile} />
-          {state.loading && <p className="muted">Reading the image…</p>}
+          <DropZone compact={!!file} loading={state.loading} onFile={openFile} />
           {state.loadError && <p className="error">{state.loadError}</p>}
           <Controls
             options={options}
@@ -71,7 +70,7 @@ export function App() {
         <section className="right">
           {file ? (
             <>
-              <StatusLine file={file} full={full} previewing={previewing} busy={state.busy} />
+              <StatusLine file={file} full={full} activeJob={state.activeJob} />
               <div className="preview-bar">
                 <div className="segmented" role="tablist" aria-label="Preview mode">
                   {MODES.map((m) => (
@@ -126,7 +125,7 @@ export function App() {
                 background={background}
                 showCircle={showCircle[mode]}
                 showBox={showBox}
-                dimmed={previewing}
+                dimmed={previewing || state.loading}
               />
               <button
                 type="button"
@@ -134,7 +133,7 @@ export function App() {
                 disabled={!canDownload}
                 onClick={() => void download(options)}
               >
-                Download {outputName(file.name)}
+                Download {OUTPUT_NAME}
               </button>
             </>
           ) : (

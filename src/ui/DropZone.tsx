@@ -3,9 +3,11 @@ import { useRef, useState } from 'react';
 interface Props {
   onFile: (file: File) => void;
   compact: boolean;
+  /** Shown in place of a line of text (same height), so loading never shifts the layout. */
+  loading: boolean;
 }
 
-export function DropZone({ onFile, compact }: Props) {
+export function DropZone({ onFile, compact, loading }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
 
@@ -45,14 +47,26 @@ export function DropZone({ onFile, compact }: Props) {
         }}
       />
       {compact ? (
-        <span>Drop another logo here, or <u>choose a file</u></span>
+        <Swap loading={loading} idle={<>Drop another logo here, or <u>choose a file</u></>} />
       ) : (
         <>
           <strong>Drop a logo here</strong>
-          <span>or click to choose a file (PNG, JPEG or WebP)</span>
+          <Swap loading={loading} idle="or click to choose a file (PNG, JPEG or WebP)" />
           <span className="muted">The image is processed in your browser and never uploaded.</span>
         </>
       )}
     </div>
+  );
+}
+
+/** Both texts occupy the same grid cell; only visibility changes, so nothing moves. */
+function Swap({ loading, idle }: { loading: boolean; idle: React.ReactNode }) {
+  return (
+    <span className="swap">
+      <span style={{ visibility: loading ? 'hidden' : 'visible' }}>{idle}</span>
+      <span style={{ visibility: loading ? 'visible' : 'hidden' }} aria-hidden={!loading}>
+        Reading the image…
+      </span>
+    </span>
   );
 }

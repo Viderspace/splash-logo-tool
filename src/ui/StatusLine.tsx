@@ -1,21 +1,48 @@
+import { useEffect, useState } from 'react';
 import { MIN_CONTRAST } from '../core/constants';
 import { formatFixed } from '../core/round';
 import type { FileInfo, Outcome } from './useProcessor';
 
+/** Show the processing indicator only when a single job runs longer than this. */
+const BUSY_DELAY_MS = 200;
+
 interface Props {
   file: FileInfo;
   full: Outcome | null;
-  previewing: boolean;
-  busy: boolean;
+  /** Id of the running worker job, or null when idle. */
+  activeJob: number | null;
 }
 
-export function StatusLine({ file, full, previewing, busy }: Props) {
+/**
+ * True once the current job has been running for `delay` ms. The timer restarts per
+ * job, so a stream of fast jobs (e.g. slider previews) never shows the indicator.
+ */
+function useSlowJob(activeJob: number | null, delay: number): boolean {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    if (activeJob === null) {
+      setShown(false);
+      return;
+    }
+    const t = window.setTimeout(() => setShown(true), delay);
+    return () => window.clearTimeout(t);
+  }, [activeJob, delay]);
+  return shown;
+}
+
+export function StatusLine({ file, full, activeJob }: Props) {
+  const showBusy = useSlowJob(activeJob, BUSY_DELAY_MS);
   const items: React.ReactNode[] = [];
 
+  // Transient state lives in fixed-width slots on this line, so it never changes the layout.
   items.push(
-    <li key="file" className="muted">
-      {file.name} · {file.width}×{file.height} {file.format.toUpperCase()}
-      {full && ` · ${Math.round(full.ms)} ms`}
+    <li key="file" className="meta muted">
+      <span className="meta-name" title={file.name}>{file.name}</span>
+      <span className="meta-dims">
+        · {file.width}×{file.height} {file.format.toUpperCase()}
+      </span>
+      <span className="meta-ms">{full ? `· ${Math.round(full.ms)} ms` : ''}</span>
+      <span className="meta-busy" role="status">{showBusy ? 'Processing…' : ''}</span>
     </li>,
   );
 
@@ -71,13 +98,5 @@ export function StatusLine({ file, full, previewing, busy }: Props) {
     }
   }
 
-  if (previewing || busy) {
-    items.push(
-      <li key="busy" className="muted">
-        {previewing ? 'Preview at reduced resolution…' : 'Processing…'}
-      </li>,
-    );
-  }
-
-  return <ul className="status" aria-live="polite">{items}</ul>;
+  return <ul className="status">{items}</ul>;
 }

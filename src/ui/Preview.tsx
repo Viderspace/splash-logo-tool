@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { relativeLuminance } from '../core/color';
 import { CANVAS_SIZE, CIRCLE_DIAMETER } from '../core/constants';
 import type { FitInfo } from '../core/fit';
@@ -38,27 +38,14 @@ const PHONE_H = (PHONE.screenH + 2 * PHONE.bezel) * DP;
 /** Display only: the canvas never feeds back into processing or the download. */
 export function Preview({ output, fit, mode, background, showCircle, showBox, dimmed }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
-
-  useEffect(() => {
-    const replace = (next: ImageBitmap | null) =>
-      setBitmap((prev) => {
-        prev?.close();
-        return next;
-      });
-    if (!output) {
-      replace(null);
-      return;
-    }
-    let cancelled = false;
-    const data = new ImageData(new Uint8ClampedArray(output), CANVAS_SIZE, CANVAS_SIZE);
-    createImageBitmap(data).then((bmp) => {
-      if (cancelled) bmp.close();
-      else replace(bmp);
-    });
-    return () => {
-      cancelled = true;
-    };
+  // The output as a drawable canvas. Unlike an ImageBitmap it can't be closed/detached
+  // while a render still uses it, and the garbage collector frees it.
+  const source = useMemo(() => {
+    if (!output) return null;
+    const c = document.createElement('canvas');
+    c.width = c.height = CANVAS_SIZE;
+    c.getContext('2d')!.putImageData(new ImageData(new Uint8ClampedArray(output), CANVAS_SIZE, CANVAS_SIZE), 0, 0);
+    return c;
   }, [output]);
 
   const width = mode === 'phone' ? PHONE_W : CANVAS_SIZE;
@@ -76,7 +63,7 @@ export function Preview({ output, fit, mode, background, showCircle, showBox, di
     const overlays = { fit, showCircle, showBox, lw };
 
     if (mode === 'phone') {
-      drawPhone(ctx, bitmap, background, overlays);
+      drawPhone(ctx, source, background, overlays);
     } else {
       if (mode === 'splash') {
         // The splash is one background color across the whole screen; the mask clips only the icon.
@@ -84,10 +71,10 @@ export function Preview({ output, fit, mode, background, showCircle, showBox, di
         ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
       }
       const c = CANVAS_SIZE / 2;
-      drawIcon(ctx, bitmap, c, c, CANVAS_SIZE, mode === 'splash');
+      drawIcon(ctx, source, c, c, CANVAS_SIZE, mode === 'splash');
       drawOverlays(ctx, c, c, CANVAS_SIZE, overlays);
     }
-  }, [bitmap, mode, background, showCircle, showBox, fit, width]);
+  }, [source, mode, background, showCircle, showBox, fit, width]);
 
   return (
     <canvas
@@ -115,7 +102,7 @@ interface Overlays {
 }
 
 /** The 1152 output drawn at `size` px centered on (cx, cy), optionally clipped to the mask circle. */
-function drawIcon(ctx: CanvasRenderingContext2D, bmp: ImageBitmap | null, cx: number, cy: number, size: number, clip: boolean) {
+function drawIcon(ctx: CanvasRenderingContext2D, bmp: CanvasImageSource | null, cx: number, cy: number, size: number, clip: boolean) {
   if (!bmp) return;
   ctx.save();
   if (clip) {
@@ -172,7 +159,7 @@ function contrastInk(background: string): string {
   return y > 0.4 ? '#1f1f1f' : '#f2f2f2';
 }
 
-function drawPhone(ctx: CanvasRenderingContext2D, bmp: ImageBitmap | null, background: string, o: Overlays) {
+function drawPhone(ctx: CanvasRenderingContext2D, bmp: CanvasImageSource | null, background: string, o: Overlays) {
   const P = PHONE;
   // Body.
   ctx.save();

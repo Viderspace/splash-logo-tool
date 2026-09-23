@@ -110,3 +110,12 @@ button.secondary { align-self: flex-start; }
 .bg-picker input[type='color'] { width: 34px; height: 28px; padding: 0 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer; }
 .preview.phone { align-self: flex-start; width: auto; max-width: 100%; height: min(72vh, 720px); aspect-ratio: auto; border: none; border-radius: 0; background: none; }
 .overlay-toggles { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+
+/* Meta line: file info plus fixed-width slots for transient state (no reflow). */
+.status li.meta { display: flex; gap: 0.35em; white-space: nowrap; align-items: baseline; }
+.meta-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.meta-dims { flex: none; }
+.meta-ms { flex: none; width: 10ch; font-variant-numeric: tabular-nums; }
+.meta-busy { flex: none; width: 7.5em; margin-left: auto; text-align: right; color: var(--accent); }
+.swap { display: inline-grid; }
+.swap > span { grid-area: 1 / 1; }

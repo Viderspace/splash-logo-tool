@@ -38,6 +38,8 @@ export interface ProcessorState {
   /** Latest full-resolution outcome (drives the status line). */
   full: Outcome | null;
   busy: boolean;
+  /** Id of the worker job running right now (null when idle); each job gets a new id. */
+  activeJob: number | null;
 }
 
 export type ChangeMode = 'drag' | 'commit';
@@ -49,9 +51,12 @@ export function useProcessor() {
   const inflight = useRef(0);
   const settleTimer = useRef<number | undefined>(undefined);
   const fileRef = useRef<FileInfo | null>(null);
+  /** A newly loaded file, shown only once its first result is ready (one swap, no layout jump). */
+  const pendingFile = useRef<FileInfo | null>(null);
   const [state, setState] = useState<ProcessorState>({
-    file: null, loading: false, loadError: null, latest: null, full: null, busy: false,
+    file: null, loading: false, loadError: null, latest: null, full: null, busy: false, activeJob: null,
   });
+  const jobSeq = useRef(0);
 
   useEffect(() => {
     clientRef.current = new ProcessorClient();
@@ -62,7 +67,16 @@ export function useProcessor() {
   const enqueue = useCallback(<T,>(fn: () => Promise<T>): Promise<T> => {
     inflight.current++;
     setState((s) => ({ ...s, busy: true }));
-    const p = chain.current.then(fn).finally(() => {
+    const run = async () => {
+      const id = ++jobSeq.current;
+      setState((s) => ({ ...s, activeJob: id }));
+      try {
+        return await fn();
+      } finally {
+        setState((s) => (s.activeJob === id ? { ...s, activeJob: null } : s));
+      }
+    };
+    const p = chain.current.then(run).finally(() => {
       inflight.current--;
       if (inflight.current === 0) setState((s) => ({ ...s, busy: false }));
     });
@@ -77,7 +91,9 @@ export function useProcessor() {
       const res = await clientRef.current!.call({ type: 'process', options, quality });
       if (res.type !== 'processed') {
         const message = res.type === 'error' ? res.message : 'Unexpected worker response.';
-        setState((s) => ({ ...s, loadError: message }));
+        const pf = pendingFile.current;
+        pendingFile.current = null;
+        setState((s) => ({ ...s, loadError: message, ...(pf ? { file: pf, loading: false, latest: null, full: null } : {}) }));
         return;
       }
       const outcome: Outcome = {
@@ -89,6 +105,13 @@ export function useProcessor() {
         failure: res.result.ok ? null : res.result.error,
         output: res.result.ok ? new Uint8ClampedArray(res.result.output) : null,
       };
+      const pf = pendingFile.current;
+      if (pf) {
+        if (quality !== 'full') return; // the previous file is still on screen
+        pendingFile.current = null;
+        setState((s) => ({ ...s, file: pf, loading: false, latest: outcome, full: outcome }));
+        return;
+      }
       setState((s) => ({
         ...s,
         latest: outcome.output || quality === 'full' ? outcome : s.latest,
@@ -101,11 +124,17 @@ export function useProcessor() {
     window.clearTimeout(settleTimer.current);
     token.current++;
     fileRef.current = null;
-    setState((s) => ({ ...s, file: null, loading: true, loadError: null, latest: null, full: null }));
+    pendingFile.current = null;
+    // Keep the current file on screen (dimmed) until the new one has its first result.
+    setState((s) => ({ ...s, loading: true, loadError: null }));
     const bytes = await file.arrayBuffer();
     const res = await enqueue(() => clientRef.current!.call({ type: 'load', bytes }, [bytes]));
     if (res.type !== 'loaded') {
-      setState((s) => ({ ...s, loading: false, loadError: res.type === 'error' ? res.message : 'Could not load the file.' }));
+      // The worker has dropped the previous image, so the previous file can't stay either.
+      setState((s) => ({
+        ...s, file: null, latest: null, full: null, loading: false,
+        loadError: res.type === 'error' ? res.message : 'Could not load the file.',
+      }));
       return;
     }
     const info: FileInfo = {
@@ -113,7 +142,7 @@ export function useProcessor() {
       format: res.format, exifOrientation: res.exifOrientation,
     };
     fileRef.current = info;
-    setState((s) => ({ ...s, file: info, loading: false }));
+    pendingFile.current = info;
     requestProcess(options, 'full');
   }, [enqueue, requestProcess]);
 
@@ -141,7 +170,7 @@ export function useProcessor() {
     const url = URL.createObjectURL(new Blob([res.png], { type: 'image/png' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = outputName(f.name);
+    a.download = OUTPUT_NAME;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -151,8 +180,5 @@ export function useProcessor() {
   return { state, load, update, download };
 }
 
-export function outputName(original: string): string {
-  const dot = original.lastIndexOf('.');
-  const stem = dot > 0 ? original.slice(0, dot) : original;
-  return `${stem}_1152.png`;
-}
+/** Download file name (fixed, whatever the input is called). */
+export const OUTPUT_NAME = 'android_splash.png';
